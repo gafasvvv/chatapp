@@ -7,17 +7,25 @@
   </head>
   <body>
     <div id="app" class="container">
+      <!-- 入力欄 -->
       名前: <input type="text" class="form-control" style="width:250px" v-model="name">
       内容: <input type="text" class="form-control" style="width:400px" v-model="content"><br>
+
+      <!-- 送信ボタン -->
       <button class="btn btn-primary" @click="send">送信</button>
+
+      <!-- 送信済みのメッセージ一覧 -->
       <p v-for="(message, index) in sorted_messages" :key="index">{{ message.name }} > {{ message.content }}</p>
 
+      <!-- firebaseのライブラリ読み込みと初期化 -->
       <script defer src="/__/firebase/5.3.0/firebase-app.js"></script>
       <script defer src="/__/firebase/5.3.0/firebase-firestore.js"></script>
       <script defer src="/__/firebase/init.js"></script>
+      <!-- Bootstrapのライブラリ -->
       <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>
       <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.3/umd/popper.min.js" integrity="sha384-ZMP7rVo3mIykV+2+9J3UJ46jBk0WLaUAdn689aCwoqbBJiSnjAK/l8WvCWPIPm49" crossorigin="anonymous"></script>
       <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.2/js/bootstrap.min.js" integrity="sha384-o+RDsa0aLu++PJvFqy8fFScvbHFLtbvScb8AjopnFD+iEQ7wo/CG0xlczd+2O/em" crossorigin="anonymous"></script>
+      <!-- Vuejsとjs、Vue.jsとFirebaseを連携するライブラリ -->
       <script src="https://Vuejs.org/js/Vue.js" charset="utf-8"></script>
       <script src="https://unpkg.com/vue-firestore"></script>
 
@@ -30,26 +38,37 @@
 
         var app = new Vue({
           el: '#app',
+          //入力欄
           data: {
             name: "",
             content:""
           },
+
+          // Firestoreのデータ
           firestore: {
             messages: db.collection("messages"),
           },
+
+          //送信ボタンのメソッド
           methods: {
             send:function(){
               date = new Date()
+              
+              //入力欄の値にタイムスタンプを追加してFirestoreに追加
               var message = {
                 name: this.name,
                 content: this.content,
-                timestamp: "" + date.getFullYear() + ("0"+date.getMonth()+1).slice(-2) + ("0"+date.getDate()).slice(-2) + ("0"+date.getHours()).slice(-2) + ("0"+date.getMinutes()).slice(-2) + ("0"+date.getSeconds()).slice(-2)
+                timestamp: "" + date.getFullYear() + ("0"+date.getMonth()+1).slice(-2) + ("0"+date.getDate()).slice(-2)
+                 + ("0"+date.getHours()).slice(-2) + ("0"+date.getMinutes()).slice(-2) + ("0"+date.getSeconds()).slice(-2)
               };
+              //Cloud Firestoreへのデータ追加
               this.$firestore.messages.add(message);
 
               this.content = ""
             },
           },
+
+          //送信済みメッセージを送信時刻順に並び替え（算出プロパティ）
           computed: {
             sorted_messages (){
               const list = this.messages.slice()
